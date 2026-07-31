@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Github</title>
+    <script>
+        const URL="https://dummyjson.com/products"
+        async function loadProduct(){
+            try{
+                const result =await fetch(URL);
+                const response = await result.json();
+                // console.log("result",response)
+                const tbody = document.querySelector("tbody");
+                response.products.map((product,idx)=>{
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${idx+1}</td>
+                    <td>${product.title}</td>
+                    <td>${product.category}</td>
+                    <td>${product.price}</td>
+                    <td>${product.rating}</td>
+                    <td><img src="${product.thumbnail}" width="80"></td>
+                    `;
+                    tbody.appendChild(tr);
+                })
+            }catch(err){
+                console.log(err)
+            }
+        }
+        loadProduct()
+    </script>
+    <style>
+        table{
+            margin:auto;
+            background-color: antiquewhite;
+            
+        }
+        .heading{
+            /* color:rgb(121, 25, 204) */
+            background-color:aqua;
+        }
+        .feild{
+            margin:auto;
+        }
+    </style>
+</head>
+<body>
+    <table border="black">
+        <thead class="heading">
+            <tr >
+                <th>Sr.No</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Price </th>
+                <th>Rating</th>
+                <th>Photo</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</body>
+</html>

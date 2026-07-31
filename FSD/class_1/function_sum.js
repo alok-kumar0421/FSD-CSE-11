@@ -1,4 +1,4 @@
-export function sum(...num){
+export function sum(...num){ //Isliye Rest Parameter ka use tab karte hain jab hume nahi pata hota kitne arguments aayenge.
     const sum = num.reduce((s,i)=>(s+i));
     return sum;
 }
