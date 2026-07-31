@@ -1,0 +1,63 @@
+.nav{
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+    margin:10px;
+    
+}
+.heading{
+    font-size:60px;
+}
+.banner{
+    border-radius: 20px;
+    height:80%;
+    width: 80%;
+    display: flex;
+    align-items: center;
+}
+.col{
+    border-radius: 10%;
+}
+body{
+    margin:10px;
+}
+.mov{
+    height:100%;
+    color:red;
+    background-color: yellow
+}
+.f-img{
+    height:50px;
+}
+
+.mar{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap:20px;
+}
+
+table{
+    border-collapse: collapse;
+}
+
+th{
+    background-color: navy;
+    color: white;
+}
+
+td,th{
+    padding: 10px;
+}
+
+button{
+    padding:10px 20px;
+    background-color:green;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+button:hover{
+    background-color:darkgreen;
+}
