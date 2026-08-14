@@ -5,10 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fetch Github</title>
     <script>
-        const URL="https://dummyjson.com/products"
+        const URL="https://dummyjson.com/products?limit=10&skip=2"
+        const RATEURL ="https://v6.exchangerate-api.com/v6/dcae9c79e69985006954f939/pair/USD/INR"
         async function loadProduct(){
             try{
+                let cart = []
+                function addItem(idx){
+                    cart.push(idx)
+                    console.log(cart)
+                }
+                
                 const result =await fetch(URL);
+                const Rate =await fetch(RATEURL);
+                const rateData = await Rate.json();
+                console.log(rateData);
+                const CurrentRate = (rateData.conversion_rate);
                 const response = await result.json();
                 // console.log("result",response)
                 const tbody = document.querySelector("tbody");
@@ -17,9 +28,10 @@
                     tr.innerHTML = `<td>${idx+1}</td>
                     <td>${product.title}</td>
                     <td>${product.category}</td>
-                    <td>${product.price}</td>
+                    <td>&#x20B9;${(product.price*CurrentRate).toFixed(2)}</td>
                     <td>${product.rating}</td>
                     <td><img src="${product.thumbnail}" width="80"></td>
+                    <td><button ${onClick=addItem(product.price*CurrentRate)}>add to cart</button></td>
                     `;
                     tbody.appendChild(tr);
                 })
@@ -54,9 +66,10 @@
                 <th>Price </th>
                 <th>Rating</th>
                 <th>Photo</th>
+                <th>Choose</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody style="text-align: center;">
 
         </tbody>
     </table>
