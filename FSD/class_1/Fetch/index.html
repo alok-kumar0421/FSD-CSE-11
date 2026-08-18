@@ -10,11 +10,32 @@
         async function loadProduct(){
             try{
                 let cart = []
-                function addItem(idx){
+                let items=[]
+                function addItem(idx,item){
                     cart.push(idx)
+                    items.push(item)
                     console.log(cart)
                 }
-                
+                window.addItem = addItem;
+                function placeOrder(){
+                    let totalPrice=0;
+                    for(let i=0;i<cart.length;i++){
+                        totalPrice+=cart[i]
+                    }
+                    const y = document.getElementsByClassName("produc")[0]
+                    const h2 = document.createElement("list")
+                    for(let i=0;i<items.lengt;i++){
+                        h2.innerHTML=items[i];
+                    }
+                    y.appendChild(h2)
+                    const x = document.getElementsByClassName("order")[0]
+                    const h1 = document.createElement("h1")
+                    h1.innerHTML=`Total Price: ₹${totalPrice.toFixed(2)}`;
+                    x.appendChild(h1)
+                    console.log(totalPrice)
+                }
+                window.placeOrder = placeOrder;
+
                 const result =await fetch(URL);
                 const Rate =await fetch(RATEURL);
                 const rateData = await Rate.json();
@@ -31,7 +52,7 @@
                     <td>&#x20B9;${(product.price*CurrentRate).toFixed(2)}</td>
                     <td>${product.rating}</td>
                     <td><img src="${product.thumbnail}" width="80"></td>
-                    <td><button ${onClick=addItem(product.price*CurrentRate)}>add to cart</button></td>
+                    <td><button onclick="addItem(${product.price * CurrentRate,product.title})">add to cart</button></td>
                     `;
                     tbody.appendChild(tr);
                 })
@@ -73,5 +94,8 @@
 
         </tbody>
     </table>
+    <div class="order"></div>
+    <div class="produc"></div>
+    <button onclick="placeOrder()">place order</button>
 </body>
 </html>
