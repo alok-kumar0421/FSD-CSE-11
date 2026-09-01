@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScoreMyResume — ATS Match Scoring, done right</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --bg-soft:#FFF6FA;
+    --ink:#1A1420;
+    --ink-soft:#6E6572;
+    --pink:#FF3D82;
+    --pink-deep:#C2185B;
+    --pink-pale:#FFDCEB;
+    --pink-line:#FFC3DE;
+    --pass:#0F9D58;
+    --disp: 'Bricolage Grotesque', sans-serif;
+    --body: 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--body);
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--pink);color:#fff;}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+
+  /* focus visibility */
+  a:focus-visible, button:focus-visible{outline:2px solid var(--pink-deep); outline-offset:3px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--pink-line);
+  }
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:76px;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-0.02em;}
+  .logo-mark{
+    width:30px;height:30px;border-radius:9px;
+    background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-family:var(--mono);font-weight:700;font-size:13px;
+    box-shadow:0 4px 14px -4px rgba(255,61,130,0.6);
+  }
+  .navlinks{display:flex;gap:36px;font-size:14.5px;color:var(--ink-soft);font-weight:500;}
+  .navlinks a:hover{color:var(--pink-deep);}
+  .nav-cta{
+    padding:10px 20px;border-radius:999px;
+    background:var(--ink);color:#fff;font-size:14px;font-weight:600;
+    transition:transform .18s ease, background .18s ease;
+  }
+  .nav-cta:hover{background:var(--pink-deep); transform:translateY(-1px);}
+  @media (max-width:820px){ .navlinks{display:none;} }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:88px 0 60px;
+    position:relative;
+  }
+  .hero .wrap{
+    display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:12.5px;font-weight:500;letter-spacing:0.02em;
+    color:var(--pink-deep); background:var(--pink-pale);
+    padding:7px 14px;border-radius:999px; margin-bottom:22px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--pink);animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+  h1{
+    font-family:var(--disp);
+    font-weight:700;
+    font-size:clamp(38px,4.6vw,60px);
+    line-height:1.03;
+    letter-spacing:-0.025em;
+    margin-bottom:22px;
+  }
+  h1 .hl{
+    position:relative; color:var(--pink-deep); font-style:italic; font-weight:600;
+  }
+  .hero p.lede{
+    font-size:17.5px; line-height:1.6; color:var(--ink-soft); max-width:480px; margin-bottom:32px;
+  }
+  .hero-ctas{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:34px;}
+  .btn-primary, .btn-ghost{
+    padding:14px 26px;border-radius:12px;font-weight:600;font-size:15px;
+    display:inline-flex;align-items:center;gap:8px;
+    transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+  .btn-primary{
+    background:var(--pink); color:#fff;
+    box-shadow:0 10px 24px -8px rgba(255,61,130,0.55);
+  }
+  .btn-primary:hover{background:var(--pink-deep); transform:translateY(-2px);}
+  .btn-ghost{
+    background:#fff; color:var(--ink); border:1.5px solid var(--pink-line);
+  }
+  .btn-ghost:hover{border-color:var(--pink); transform:translateY(-2px);}
+
+  .hero-stats{display:flex; gap:30px;}
+  .hero-stats div{border-left:2px solid var(--pink-line); padding-left:14px;}
+  .hero-stats b{display:block; font-family:var(--mono); font-size:22px; color:var(--ink); font-weight:700;}
+  .hero-stats span{font-size:12.5px; color:var(--ink-soft);}
+
+  /* ---------- SIGNATURE SCAN CARD ---------- */
+  .scan-card{
+    position:relative;
+    background:var(--bg-soft);
+    border:1px solid var(--pink-line);
+    border-radius:22px;
+    padding:26px;
+    box-shadow:0 30px 60px -30px rgba(194,24,91,0.28);
+  }
+  .scan-window{
+    position:relative;
+    background:#fff;
+    border-radius:14px;
+    border:1px solid var(--pink-line);
+    padding:22px 22px 18px;
+    overflow:hidden;
+  }
+  .scan-window::after{
+    content:"";
+    position:absolute; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--pink), transparent);
+    box-shadow:0 0 18px 3px rgba(255,61,130,0.55);
+    animation:scanmove 3.2s ease-in-out infinite;
+  }
+  @keyframes scanmove{
+    0%{ top:6%; opacity:0;}
+    8%{opacity:1;}
+    50%{ top:92%; opacity:1;}
+    58%{opacity:0;}
+    100%{ top:92%; opacity:0;}
+  }
+  .doc-title{font-family:var(--mono); font-size:11px; color:var(--ink-soft); display:flex; justify-content:space-between; margin-bottom:14px;}
+  .doc-line{height:8px; background:var(--pink-pale); border-radius:4px; margin-bottom:9px;}
+  .doc-line.w1{width:92%;}
+  .doc-line.w2{width:78%;}
+  .doc-line.w3{width:85%;}
+  .doc-line.hit{background:var(--pink); opacity:0.85;}
+  .doc-line.w4{width:60%;}
+  .doc-line.w5{width:70%;}
+
+  .kw-row{display:flex; gap:7px; flex-wrap:wrap; margin:16px 0 4px;}
+  .kw{
+    font-family:var(--mono); font-size:11px; padding:5px 9px; border-radius:6px;
+    background:#EAFBF1; color:var(--pass); border:1px solid #C9EFDA; font-weight:500;
+  }
+  .kw.miss{background:#FFF1F1; color:#D93636; border-color:#FBD6D6;}
+
+  .score-ring{
+    position:absolute; right:20px; top:20px;
+    width:86px; height:86px;
+  }
+  .score-ring svg{transform:rotate(-90deg);}
+  .score-ring circle{fill:none; stroke-width:7;}
+  .score-ring .bg{stroke:var(--pink-pale);}
+  .score-ring .fg{stroke:var(--pink-deep); stroke-linecap:round; stroke-dasharray:226; stroke-dashoffset:226; animation:fillring 2.4s ease forwards 0.4s;}
+  @keyframes fillring{ to{ stroke-dashoffset:24; } }
+  .score-num{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-weight:700; font-size:18px; color:var(--ink);
+  }
+
+  .scan-footer{display:flex; justify-content:space-between; align-items:center; margin-top:16px;}
+  .scan-footer .tag{font-family:var(--mono); font-size:11.5px; color:var(--ink-soft);}
+  .scan-footer .verdict{font-family:var(--mono); font-size:12px; font-weight:700; color:var(--pass);}
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section{padding:88px 0;}
+  .section-label{
+    font-family:var(--mono); font-size:12.5px; color:var(--pink-deep); font-weight:600;
+    letter-spacing:0.03em; margin-bottom:12px;
+  }
+  .section h2{
+    font-family:var(--disp); font-weight:700; font-size:clamp(28px,3.2vw,40px);
+    letter-spacing:-0.02em; max-width:620px; margin-bottom:16px;
+  }
+  .section .sub{color:var(--ink-soft); font-size:16px; max-width:560px; line-height:1.6;}
+
+  /* ---------- STEPS ---------- */
+  .steps{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:2px;
+    margin-top:56px; border-radius:18px; overflow:hidden; border:1px solid var(--pink-line);
+    background:var(--pink-line);
+  }
+  .step{background:#fff; padding:30px 24px; position:relative;}
+  .step .n{font-family:var(--mono); font-size:13px; color:var(--pink); font-weight:700; margin-bottom:18px;}
+  .step h3{font-family:var(--disp); font-size:18px; font-weight:600; margin-bottom:10px;}
+  .step p{font-size:14px; color:var(--ink-soft); line-height:1.55;}
+  @media (max-width:900px){ .steps{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .steps{grid-template-columns:1fr;} }
+
+  /* ---------- STACK STRIP ---------- */
+  .stack-strip{
+    background:var(--ink); border-radius:20px; padding:40px 44px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:24px;
+  }
+  .stack-strip .lbl{font-family:var(--mono); color:#FFC3DE; font-size:12.5px;}
+  .stack-badges{display:flex; gap:12px; flex-wrap:wrap;}
+  .badge{
+    font-family:var(--mono); font-size:13px; color:#fff; border:1px solid rgba(255,255,255,0.18);
+    padding:9px 16px; border-radius:999px; background:rgba(255,255,255,0.04);
+  }
+  .badge b{color:var(--pink);}
+
+  /* ---------- BREAKDOWN ---------- */
+  .breakdown-grid{display:grid; grid-template-columns:1fr 1fr; gap:48px; margin-top:56px; align-items:center;}
+  .bar-row{margin-bottom:20px;}
+  .bar-row .lbl{display:flex; justify-content:space-between; font-size:13.5px; font-weight:500; margin-bottom:7px;}
+  .bar-row .lbl span:last-child{font-family:var(--mono); color:var(--pink-deep); font-weight:700;}
+  .bar-track{height:9px; background:var(--pink-pale); border-radius:99px; overflow:hidden;}
+  .bar-fill{height:100%; background:linear-gradient(90deg,var(--pink),var(--pink-deep)); border-radius:99px; width:0%; transition:width 1.4s cubic-bezier(.2,.8,.2,1);}
+  .breakdown-note{font-size:14.5px; color:var(--ink-soft); line-height:1.65; margin-top:6px;}
+  .mismatch-card{
+    background:var(--bg-soft); border:1px solid var(--pink-line); border-radius:18px; padding:26px;
+  }
+  .mismatch-card h4{font-family:var(--mono); font-size:12.5px; color:var(--ink-soft); margin-bottom:14px; letter-spacing:0.02em;}
+  @media (max-width:820px){ .breakdown-grid{grid-template-columns:1fr;} }
+
+  /* ---------- PDF PREVIEW ---------- */
+  .pdf-section .wrap{display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px; align-items:center;}
+  .pdf-mock{
+    background:#fff; border:1px solid var(--pink-line); border-radius:16px; padding:0;
+    box-shadow:0 40px 70px -40px rgba(194,24,91,0.35);
+    transform:rotate(-2deg);
+  }
+  .pdf-mock-inner{padding:26px;}
+  .pdf-head{display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px dashed var(--pink-line); padding-bottom:14px; margin-bottom:16px;}
+  .pdf-head b{font-family:var(--disp); font-size:16px;}
+  .pdf-head span{display:block; font-family:var(--mono); font-size:10.5px; color:var(--ink-soft); margin-top:3px;}
+  .pdf-score-big{font-family:var(--mono); font-size:34px; font-weight:700; color:var(--pink-deep);}
+  .pdf-sec-title{font-family:var(--mono); font-size:11px; color:var(--pink-deep); margin:16px 0 8px; font-weight:700;}
+  @media (max-width:900px){ .pdf-section .wrap{grid-template-columns:1fr;} .pdf-mock{transform:none; max-width:400px;} }
+
+  /* ---------- CTA ---------- */
+  .cta-section{padding:100px 0 120px; text-align:center;}
+  .cta-box{
+    background:linear-gradient(135deg, var(--pink) 0%, var(--pink-deep) 100%);
+    border-radius:28px; padding:70px 40px; color:#fff; position:relative; overflow:hidden;
+  }
+  .cta-box h2{font-family:var(--disp); font-size:clamp(28px,3.6vw,44px); font-weight:700; letter-spacing:-0.02em; margin-bottom:16px;}
+  .cta-box p{font-size:16.5px; opacity:0.92; max-width:480px; margin:0 auto 32px;}
+  .cta-box .btn-primary{background:#fff; color:var(--pink-deep); box-shadow:none;}
+  .cta-box .btn-primary:hover{background:var(--ink); color:#fff;}
+
+  footer{padding:40px 0; border-top:1px solid var(--pink-line);}
+  footer .wrap{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;}
+  footer p{font-size:13px; color:var(--ink-soft);}
+  footer .fmono{font-family:var(--mono); font-size:12px; color:var(--ink-soft);}
+
+  .reveal{opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  @media (max-width:900px){
+    .hero .wrap{grid-template-columns:1fr;}
+    .hero{padding-top:48px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="logo"><div class="logo-mark">SC</div>ScoreMyResume</div>
+    <div class="navlinks">
+      <a href="#how">How it works</a>
+      <a href="#stack">Stack</a>
+      <a href="#breakdown">Scoring</a>
+      <a href="#report">Report</a>
+    </div>
+    <a href="#report" class="nav-cta">Try a scan</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>BERT-powered semantic matching</div>
+      <h1>Know your resume's<br><span class="hl">real</span> ATS score<br>before the bot does.</h1>
+      <p class="lede">Upload your resume and a job description — a fine-tuned BERT model and classic NLP checks compare them line by line, then hand you a detailed PDF report you can actually act on.</p>
+      <div class="hero-ctas">
+        <a href="#report" class="btn-primary">Scan my resume →</a>
+        <a href="#how" class="btn-ghost">See how scoring works</a>
+      </div>
+      <div class="hero-stats">
+        <div><b>92%</b><span>match on strong pairs</span></div>
+        <div><b>&lt;8s</b><span>FastAPI response time</span></div>
+        <div><b>PDF</b><span>detailed report, every scan</span></div>
+      </div>
+    </div>
+
+    <div class="scan-card reveal in">
+      <div class="scan-window">
+        <div class="score-ring">
+          <svg width="86" height="86">
+            <circle class="bg" cx="43" cy="43" r="36"></circle>
+            <circle class="fg" cx="43" cy="43" r="36"></circle>
+          </svg>
+          <div class="score-num">87%</div>
+        </div>
+        <div class="doc-title"><span>resume_final.pdf</span><span>vs job_description.txt</span></div>
+        <div class="doc-line w1"></div>
+        <div class="doc-line w2 hit"></div>
+        <div class="doc-line w3"></div>
+        <div class="doc-line w4 hit"></div>
+        <div class="doc-line w5"></div>
+        <div class="kw-row">
+          <span class="kw">FastAPI ✓</span>
+          <span class="kw">REST APIs ✓</span>
+          <span class="kw">PyTorch ✓</span>
+          <span class="kw miss">Kubernetes ✕</span>
+          <span class="kw miss">GraphQL ✕</span>
+        </div>
+      </div>
+      <div class="scan-footer">
+        <span class="tag">semantic similarity · keyword coverage · formatting</span>
+        <span class="verdict">STRONG MATCH</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="section-label">/ 01 — pipeline</div>
+    <h2>Four steps, one FastAPI call.</h2>
+    <p class="sub">Every scan runs the same pipeline your ATS vendor uses under the hood — parsing, embedding, comparing, reporting.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <h3>Upload resume</h3>
+        <p>Drop in a PDF. PyPDF extracts raw text while preserving section order for accurate parsing.</p>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <h3>Paste the JD</h3>
+        <p>Add the job description you're targeting. NLP pre-processing strips noise and extracts requirements.</p>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <h3>BERT compares</h3>
+        <p>Sentence-level embeddings score semantic overlap — not just keyword matching, but actual meaning.</p>
+      </div>
+      <div class="step">
+        <div class="n">04</div>
+        <h3>Get your PDF</h3>
+        <p>A detailed report lands with your score, matched skills, gaps, and formatting flags.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="stack">
+  <div class="wrap">
+    <div class="stack-strip">
+      <span class="lbl">// built with</span>
+      <div class="stack-badges">
+        <span class="badge"><b>FastAPI</b> backend</span>
+        <span class="badge"><b>BERT</b> embeddings</span>
+        <span class="badge"><b>spaCy / NLTK</b> preprocessing</span>
+        <span class="badge"><b>PyPDF</b> parsing</span>
+        <span class="badge"><b>ReportLab</b> PDF export</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="breakdown">
+  <div class="wrap">
+    <div class="section-label">/ 02 — scoring</div>
+    <h2>The score is a breakdown, not a black box.</h2>
+    <p class="sub">Every component is weighted and shown separately, so you know exactly what to fix.</p>
+
+    <div class="breakdown-grid">
+      <div>
+        <div class="bar-row">
+          <div class="lbl"><span>Semantic relevance (BERT)</span><span>91%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-w="91%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="lbl"><span>Keyword coverage</span><span>78%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-w="78%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="lbl"><span>Section structure</span><span>95%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-w="95%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="lbl"><span>Formatting / parseability</span><span>88%</span></div>
+          <div class="bar-track"><div class="bar-fill" data-w="88%"></div></div>
+        </div>
+        <p class="breakdown-note">Weighted average becomes the final score — with semantic relevance carrying the most weight, since that's what real ATS ranking models optimise for.</p>
+      </div>
+      <div class="mismatch-card">
+        <h4>MISSING FROM YOUR RESUME</h4>
+        <div class="kw-row" style="margin-top:0;">
+          <span class="kw miss">Kubernetes</span>
+          <span class="kw miss">GraphQL</span>
+          <span class="kw miss">CI/CD</span>
+          <span class="kw miss">Terraform</span>
+        </div>
+        <h4 style="margin-top:20px;">STRONGLY MATCHED</h4>
+        <div class="kw-row" style="margin-top:0;">
+          <span class="kw">FastAPI</span>
+          <span class="kw">PyTorch</span>
+          <span class="kw">REST APIs</span>
+          <span class="kw">NLP</span>
+          <span class="kw">Docker</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section pdf-section" id="report">
+  <div class="wrap">
+    <div class="pdf-mock">
+      <div class="pdf-mock-inner">
+        <div class="pdf-head">
+          <div>
+            <b>ATS Match Report</b>
+            <span>Generated by ScoreMyResume · PDF</span>
+          </div>
+          <div class="pdf-score-big">87</div>
+        </div>
+        <div class="pdf-sec-title">SUMMARY</div>
+        <div class="doc-line w1"></div>
+        <div class="doc-line w3"></div>
+        <div class="pdf-sec-title">MATCHED SKILLS</div>
+        <div class="kw-row" style="margin:0 0 4px;">
+          <span class="kw">FastAPI</span><span class="kw">PyTorch</span><span class="kw">NLP</span>
+        </div>
+        <div class="pdf-sec-title">GAPS TO ADDRESS</div>
+        <div class="kw-row" style="margin:0;">
+          <span class="kw miss">Kubernetes</span><span class="kw miss">GraphQL</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">/ 03 — output</div>
+      <h2>A report you can send to yourself, not just a percentage.</h2>
+      <p class="sub" style="margin-bottom:24px;">Every scan ends with a downloadable PDF: your score breakdown, matched and missing skills, formatting flags, and plain-language suggestions — built with ReportLab straight from the FastAPI response.</p>
+      <a href="#" class="btn-primary">Download sample report</a>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="wrap">
+    <div class="cta-box">
+      <h2>Stop guessing why your resume gets filtered out.</h2>
+      <p>Run a scan, get the breakdown, fix the gaps — in the time it takes to make chai.</p>
+      <a href="#" class="btn-primary">Scan my resume now →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 ScoreMyResume — a FastAPI + BERT resume matching project.</p>
+    <p class="fmono">built with FastAPI · BERT · PyPDF · NLP</p>
+  </div>
+</footer>
+
+<script>
+  // Animate bar fills and reveal-on-scroll
+  const bars = document.querySelectorAll('.bar-fill');
+  const reveals = document.querySelectorAll('.reveal, .step, .breakdown-grid, .pdf-mock, .stack-strip');
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('in');
+        if(entry.target.classList.contains('bar-fill')){
+          entry.target.style.width = entry.target.dataset.w;
+        }
+        io.unobserve(entry.target);
+      }
+    });
+  }, {threshold:0.3});
+
+  bars.forEach(b=> io.observe(b));
+
+  // Simple fade/slide-in for step cards
+  document.querySelectorAll('.step, .mismatch-card, .pdf-mock').forEach(el=>{
+    el.classList.add('reveal');
+    io.observe(el);
+  });
+</script>
+
+</body>
+</html>
